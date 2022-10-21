@@ -49,6 +49,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
     favorites = db.relationship("Favorites", backref="user", uselist=True)
     
+    
     def __repr__(self):
         return '<User %r>' % self.email
 
@@ -63,24 +64,23 @@ class User(db.Model):
 
 class Favorites(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    id_user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     nature = db.Column(db.Enum(Nature), nullable=False)
     name = db.Column(db.String(50), nullable=False)    
 
-    # __table_args__ = (db.UniqueConstraint(
-    #     "id_user",
-    #     "name",
-    #     name="unique_favorites_for_user"
-    #     ),)
-
+    nature_id = db.Column(db.Integer, nullable=False)
+    
+    # __table_args__ = (db.UniqueConstraint(), {
+    #     "user.id",
+    #     "name_favorite"
+    # })
+   
     def serialize(self):
-        user= User.query.get(self.user_id)
         return {
-            "id" : self.id,
+            "id": self.id,
+            "user_id": self.user_id,
             "name": self.name,
-            "nature": self.nature.value,
-            "user": user.serialize()
-            
+            "nature": self.nature.name
         }
     
     
